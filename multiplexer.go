@@ -73,7 +73,18 @@ func (m *Multiplexer) drawColumnBorder() {
 		Fprint(m.writer, color.BlueString("|"))
 }
 
+var lastWidth int = -1
+
 func (m *Multiplexer) render() error {
+	numLines := (m.dimensions.Height * m.dimensions.Rows) +
+		(m.dimensions.Rows + 1)
+
+	w, _ := m.writer.GetWidth()
+	if w < lastWidth {
+		m.writer.Flush(numLines)
+	}
+	lastWidth = w
+
 	columnWidths := m.calcColumnWidths()
 	rings := make([]*ring.Ring, len(m.buffers))
 	for i, b := range m.buffers {
@@ -102,9 +113,7 @@ func (m *Multiplexer) render() error {
 		}
 		m.drawRowBorder()
 	}
-	return m.writer.Flush(
-		(m.dimensions.Height * m.dimensions.Rows) +
-			(m.dimensions.Rows + 1))
+	return m.writer.Flush(numLines)
 }
 
 func (m *Multiplexer) Run(done <-chan struct{}) error {

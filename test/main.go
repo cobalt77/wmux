@@ -20,7 +20,7 @@ func main() {
 		Height:         5,
 	})
 
-	done := make(chan struct{})
+	done := make(chan struct{}, 1)
 
 	go func() {
 		writers := m.Writers()
